@@ -18,7 +18,10 @@ namespace FitnessCenterProject
         {
             throw new NotImplementedException();
         }
-
+        public void IncreaseSalary(int percentage)
+        {
+            throw new NotImplementedException();
+        }
         public void PrintToDisplay()
         {
             throw new NotImplementedException();
