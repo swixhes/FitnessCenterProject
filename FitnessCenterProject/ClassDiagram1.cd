@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="FitnessCenterProject.Client">
+    <Position X="2.5" Y="1.25" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAAAAAEAAAAAAAAAAAAABAAAQAAAACAg=</HashCode>
+      <FileName>Client.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="FitnessCenterProject.FitnessCenter">
+    <Position X="6" Y="1.25" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAABAAAAQAEAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>FitnessCenter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="FitnessCenterProject.Trainer">
+    <Position X="10.25" Y="1.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAGAAAAAAAAAAAEAAAAAAAAAAAAAAAAAQAAAACAg=</HashCode>
+      <FileName>Trainer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="FitnessCenterProject.Hall">
+    <Position X="9.75" Y="4" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQCAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Hall.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FitnessCenterProject.Training">
+    <Position X="5.5" Y="4.5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAAAAAAAAAAAAAAACAAAABBQAQAAAAAAA=</HashCode>
+      <FileName>Training.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Interface Name="FitnessCenterProject.IPerson">
+    <Position X="10.5" Y="6.5" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAAAAAEAAAAAAAAAAAAAAAAAQAAAACAg=</HashCode>
+      <FileName>IPerson.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9.22" />
+</ClassDiagram>
