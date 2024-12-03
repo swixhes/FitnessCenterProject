@@ -11,6 +11,7 @@ namespace FitnessCenterProject
         public string Name { get; set; }
         public List<Hall> Halls { get; set; }
         public List<Training> Trainings { get; set; }
+        public List<Client> Clients { get; set; }
 
         public FitnessCenter()
         {

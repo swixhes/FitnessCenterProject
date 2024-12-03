@@ -13,7 +13,7 @@ namespace FitnessCenterProject
         public Trainer Trainer { get; set; }
         public Hall Hall { get; set; }
         public DateTime Date { get; set; }
-        public List<Client> EnrolledClients { get; set; }
+        
 
         public Training(TrainingType type, Trainer trainer, Hall hall, DateTime date)
         {

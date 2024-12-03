@@ -13,6 +13,7 @@ namespace FitnessCenterProject
         public int Age { get; set; }
         public string Nationality { get; set; }
         public ClientLevel Level { get; set; }
+        public Training Training { get; set; }
 
         public Client(string firstName, string lastName, int age, string nationality, ClientLevel level)
         {
