@@ -13,19 +13,52 @@ namespace FitnessCenterProject
         public Trainer Trainer { get; set; }
         public Hall Hall { get; set; }
         public DateTime Date { get; set; }
-        
+        public List<Client> Clients { get; set; }
+        public int MaxParticipants { get; set; }
+        public bool IsIndividual { get; set; }
 
-        public Training(TrainingType type, Trainer trainer, Hall hall, DateTime date)
+        public Training(TrainingType type, Trainer trainer, Hall hall, DateTime date, int maxParticipants, bool isIndividual = false)
         {
-            throw new NotImplementedException();
+            Type = type;
+            Trainer = trainer;
+            Hall = hall;
+            Date = date;
+            MaxParticipants = maxParticipants;
+            Clients = new List<Client>();
+            IsIndividual = isIndividual;
         }
-        public void AddClient(Client client)
+
+        public Training(TrainingType strength, Trainer chosenTrainer, Hall hall, DateTime dateTime)
         {
-             throw new NotImplementedException();
+            Hall = hall;
+            Clients = new List<Client>();
+        }
+        public bool AddClient(Client client)
+        {
+            if (Clients.Contains(client))
+            {
+                Console.WriteLine($"Клієнт {client.FirstName} вже зареєстрований на цей тренінг.");
+                return false;
+            }
+
+            if (Clients.Count >= MaxParticipants)
+                throw new InvalidOperationException("Цей тренінг повний. Більше клієнтів не можна додати.");
+
+            Clients.Add(client);
+            Console.WriteLine($"Клієнт {client.FirstName} доданий на це тренування.");
+            return true;
         }
         public void PrintToDisplay()
         {
-            throw new NotImplementedException();
+            if (IsIndividual)
+            {
+                Console.WriteLine($"Тренування: {Type}, Дата: {Date:dd.MM.yyyy}, Час: {Date:HH:mm}, Тренер: {Trainer.FirstName} {Trainer.LastName}, Індивідуальне тренування");
+            }
+            else
+            {
+                int spotsLeft = MaxParticipants - Clients.Count;
+                Console.WriteLine($"Тренування: {Type}, Дата: {Date:dd.MM.yyyy}, Час: {Date:HH:mm}, Тренер: {Trainer.FirstName} {Trainer.LastName}, Місць лишилось: {spotsLeft}");
+            }
         }
     }
 }

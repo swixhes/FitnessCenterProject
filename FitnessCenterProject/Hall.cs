@@ -11,9 +11,10 @@ namespace FitnessCenterProject
         public string Name { get; set; }
         public int Capacity { get; set; }
 
-        public Hall()
+        public Hall(string name, int capacity)
         {
-            throw new NotImplementedException();
+            Name = name;
+            Capacity = capacity;
         }
     }
 }

@@ -8,8 +8,8 @@ namespace FitnessCenterProject
 {
     public enum ClientLevel
     {
-        Beginner,
-        Intermediate,
-        Professional
+        Початковець,
+        Середній,
+        Професійний
     }
 }

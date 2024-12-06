@@ -13,18 +13,20 @@ namespace FitnessCenterProject
         public int Age { get; set; }
         public string Nationality { get; set; }
         public int Salary { get; set; }
+        public ClientLevel ExpertiseLevel { get; set; }
 
-        public Trainer(string firstName, string lastName, int age, string nationality, int salary)
+        public Trainer(string firstName, string lastName, int age, string nationality, int salary, ClientLevel expertiseLevel)
         {
-            throw new NotImplementedException();
-        }
-        public void IncreaseSalary(int percentage)
-        {
-            throw new NotImplementedException();
+            FirstName = firstName;
+            LastName = lastName;
+            Age = age;
+            Nationality = nationality;
+            Salary = salary;
+            ExpertiseLevel = expertiseLevel;
         }
         public void PrintToDisplay()
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"{FirstName} {LastName}, Вік: {Age}, Зарплатня: {Salary}, Спеціалізація: {ExpertiseLevel}");
         }
     }
 }

@@ -8,11 +8,11 @@ namespace FitnessCenterProject
 {
     public enum TrainingType
     {
-        Cardio,
-        Strength,
-        Yoga,
-        Swimming,
-        Aerobics,
-        Pilates
+        Кардіо,
+        Силові,
+        Йога,
+        Плавання,
+        Аеробіка,
+        Пілатес
     }
 }
