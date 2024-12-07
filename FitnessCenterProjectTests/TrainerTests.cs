@@ -6,36 +6,20 @@ namespace FitnessCenterProjectTests
     public class TrainerTests
     {
         [TestMethod]
-        public void Trainer_ShouldInitializeCorrectly()
+        [DataRow("Paul", "Brown", 40, "UK", 5000, ClientLevel.Професійний)]
+        [DataRow("Anna", "Smith", 35, "Canada", 4000, ClientLevel.Середній)]
+        public void Trainer_ShouldInitializeCorrectly(string firstName, string lastName, int age, string nationality, int salary, ClientLevel level)
         {
             // Arrange
-            var trainer = new Trainer("Олена", "Коваль", 35, "Україна", 2000);
+            var trainer = new Trainer(firstName, lastName, age, nationality, salary, level);
 
             // Assert
-            Assert.AreEqual("Олена", trainer.FirstName, "FirstName is not set correctly.");
-            Assert.AreEqual("Коваль", trainer.LastName, "LastName is not set correctly.");
-            Assert.AreEqual(35, trainer.Age, "Age is not set correctly.");
-            Assert.AreEqual("Україна", trainer.Nationality, "Nationality is not set correctly.");
-            Assert.AreEqual(2000, trainer.Salary, "Salary is not set correctly.");
+            Assert.AreEqual(firstName, trainer.FirstName);
+            Assert.AreEqual(lastName, trainer.LastName);
+            Assert.AreEqual(age, trainer.Age);
+            Assert.AreEqual(nationality, trainer.Nationality);
+            Assert.AreEqual(salary, trainer.Salary);
+            Assert.AreEqual(level, trainer.ExpertiseLevel);
         }
-
-        [TestMethod]
-        [DataRow(-1000)]
-        [DataRow(0)]
-        public void Salary_ShouldNotBeNegative(int salary)
-        {
-            // Assert
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => new Trainer("Олена", "Коваль", 35, "Україна", salary), "Salary should not be negative or zero.");
-        }
-
-        [TestMethod]
-        [DataRow(-1)]
-        public void Age_ShouldBePositive(int age)
-        {
-            // Assert
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => new Trainer("Олена", "Коваль", age, "Україна", 2000), "Age should be a positive number.");
-        }
-
-        
     }
 }

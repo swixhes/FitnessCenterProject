@@ -37,15 +37,23 @@ namespace FitnessCenterProject
         {
             if (Clients.Contains(client))
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Клієнт {client.FirstName} вже зареєстрований на цей тренінг.");
+                Console.ResetColor();
                 return false;
             }
 
             if (Clients.Count >= MaxParticipants)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
                 throw new InvalidOperationException("Цей тренінг повний. Більше клієнтів не можна додати.");
+            }
+            Console.ResetColor();
 
             Clients.Add(client);
-            Console.WriteLine($"Клієнт {client.FirstName} доданий на це тренування.");
+            //Console.ForegroundColor = ConsoleColor.Green;
+            //Console.WriteLine($"Клієнт {client.FirstName} доданий на це тренування.");
+            //Console.ResetColor();
             return true;
         }
         public void PrintToDisplay()

@@ -19,6 +19,9 @@ namespace FitnessCenterProject
             Client = client;
             FitnessCenter = fitnessCenter;
         }
+
+        
+
         public override void Register()
         {
             if (ValidateInput(Username, Password))
@@ -26,16 +29,20 @@ namespace FitnessCenterProject
                 if (!FitnessCenter.Accounts.Any(a => string.Equals(a.Username, Username, StringComparison.OrdinalIgnoreCase)))
                 {
                     FitnessCenter.Accounts.Add(this);
-                    Console.WriteLine($"Клієнт {Client.FirstName} успішно зареєстрований з логіном: {Username}");
+                    //Console.WriteLine($"Клієнт {Client.FirstName} успішно зареєстрований з логіном: {Username}");
                 }
                 else
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Цей логін вже існує. Виберіть інший.");
+                    Console.ResetColor();
                 }
             }
             else
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Невірний логін або пароль. Реєстрація не вдалася.");
+                Console.ResetColor();
             }
         }
     }

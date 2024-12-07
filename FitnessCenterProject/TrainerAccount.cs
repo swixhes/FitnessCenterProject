@@ -22,11 +22,16 @@ namespace FitnessCenterProject
         {
             if (ValidateInput(Username, Password))
             {
-                Console.WriteLine($"Тренер {Trainer.FirstName} успішно зареєстровано з іменем користувача: {Username}");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"\nТренер {Trainer.FirstName} успішно зареєстровано логіном: {Username}");
+                Console.ResetColor();
+                Console.WriteLine($"\nВи успішно влаштовані на випробувальний термін.");
             }
             else
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Недійсне ім'я користувача або пароль. Помилка реєстрації.");
+                Console.ResetColor();
             }
         }
     }

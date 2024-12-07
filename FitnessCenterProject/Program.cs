@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace FitnessCenterProject
 {
@@ -10,6 +11,7 @@ namespace FitnessCenterProject
 
         static void Main(string[] args)
         {
+            Console.OutputEncoding = UTF8Encoding.UTF8;
             InitializeFitnessCenter();
             MainMenu();
         }
@@ -86,11 +88,15 @@ namespace FitnessCenterProject
         {
             while (true)
             {
+                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("\nЗапрошуємо до MyFitness!");
+                Console.ResetColor();
                 Console.WriteLine("1. Реєстрація клієнта");
                 Console.WriteLine("2. Резюме тренера");
                 Console.WriteLine("3. Вхід");
-                Console.WriteLine("4. Розклад флітнес центру");
+                Console.WriteLine("4. Розклад фітнес центру");
+                Console.WriteLine("5. Переглянути клієнтів і тренінги");
                 Console.WriteLine("0. Вихід");
                 Console.Write("Виберіть варіант: ");
                 string option = Console.ReadLine();
@@ -109,13 +115,24 @@ namespace FitnessCenterProject
                     case "4":
                         ViewSchedule();
                         break;
+                    case "5":
+                        fitnessCenter.DisplayClientsWithTrainings();
+                        break;
                     case "0":
-                        Console.WriteLine("Доподачення!");
+                        Console.ForegroundColor = ConsoleColor.DarkGreen;
+                        Console.WriteLine("Допобачення!");
+                        Console.ResetColor();
                         return;
                     default:
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Недійсний варіант. Спробуйте знову.");
+                        Console.ResetColor();
                         break;
                 }
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine("\nНатисніть будь-яку клавішу, щоб повернутися до меню...");
+                Console.ResetColor();
+                Console.ReadKey();
             }
         }
 
@@ -123,79 +140,142 @@ namespace FitnessCenterProject
         {
             try
             {
+                Console.Clear();
                 Console.Write("Введіть Ім'я користувача: ");
-            string username = Console.ReadLine();
-            Console.Write("Введіть Пароль: ");
-            string password = Console.ReadLine();
+                string username = Console.ReadLine();
+                Console.Write("Введіть Пароль: ");
+                string password = Console.ReadLine();
 
-            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
-                throw new InvalidOperationException("Ім'я користувача та пароль не можуть бути пустими.");
+                if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+                    throw new InvalidOperationException("Ім'я користувача та пароль не можуть бути пустими.");
 
-            if (fitnessCenter.Accounts.Any(a => a.Username == username))
-                throw new InvalidOperationException("Це ім'я користувача вже існує. Виберіть інший.");
+                if (fitnessCenter.Accounts.Any(a => a.Username == username))
+                    throw new InvalidOperationException("Це ім'я користувача вже існує. Виберіть інший.");
 
-            Console.Write("Введіть ім'я: ");
-            string firstName = Console.ReadLine();
-            Console.Write("Введіть прізвище: ");
-            string lastName = Console.ReadLine();
-            Console.Write("Введіть вік: ");
-            if (!int.TryParse(Console.ReadLine(), out int age) || age <= 0)
-                throw new ArgumentException("Недійсний вік. Вік має бути додатним числом.");
-            Console.Write("Введіть національність: ");
-            string nationality = Console.ReadLine();
+                Console.Write("Введіть ім'я: ");
+                string firstName = Console.ReadLine();
+                Console.Write("Введіть прізвище: ");
+                string lastName = Console.ReadLine();
+                Console.Write("Введіть вік: ");
+                if (!int.TryParse(Console.ReadLine(), out int age) || age <= 0)
+                    throw new ArgumentException("Недійсний вік. Вік має бути додатним числом.");
+                Console.Write("Введіть національність: ");
+                string nationality = Console.ReadLine();
 
-            Console.WriteLine("Виберіть рівень навчання: 1. Початківець, 2. Середній, 3. Професіонал");
-            if (!int.TryParse(Console.ReadLine(), out int levelChoice) || levelChoice < 1 || levelChoice > 3)
-                throw new ArgumentException("Недійсний рівень. Виберіть дійсний варіант.");
-            ClientLevel level = (ClientLevel)(int.Parse(Console.ReadLine()) - 1);
+                Console.WriteLine("Виберіть рівень навчання: 1. Початківець, 2. Середній, 3. Професіонал");
+                int levelChoice;
+                while (!int.TryParse(Console.ReadLine(), out levelChoice) || levelChoice < 1 || levelChoice > 3)
+                {
+                    Console.WriteLine("Не правильний вибір. Спробуйте знову.");
+                }
 
-            Client client = new Client(firstName, lastName, age, nationality, level);
-            ClientAccount account = new ClientAccount(username, password, client, fitnessCenter);
-            fitnessCenter.RegisterAccount(account);
+                ClientLevel level = (ClientLevel)(levelChoice - 1);
 
-            fitnessCenter.ChooseTraining(client);
+                var client = new Client(firstName, lastName, age, nationality, level);
+                var account = new ClientAccount(username, password, client, fitnessCenter);
+
+                fitnessCenter.RegisterAccount(account);
+
+                fitnessCenter.Clients.Add(client);
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"Клієнт {firstName} успішно зареєстрований з логіном: {username}\n");
+                Console.ResetColor();
+
+                fitnessCenter.ChooseTraining(client);
             }
             catch (InvalidOperationException ex)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Помилка: {ex.Message}");
+                Console.ResetColor();
             }
             catch (ArgumentException ex)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Помилка введення: {ex.Message}");
+                Console.ResetColor();
             }
             catch (Exception ex)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Несподівана помилка: {ex.Message}");
+                Console.ResetColor();
             }
         }
+
         static void ApplyAsTrainer()
         {
-            Console.Write("Введіть Ім'я користувача: ");
-            string username = Console.ReadLine();
-            Console.Write("Введіть Пароль: ");
-            string password = Console.ReadLine();
+            try
+            {
+                Console.Clear();
+                Console.Write("Введіть Ім'я користувача: ");
+                string username = Console.ReadLine();
+                Console.Write("Введіть Пароль: ");
+                string password = Console.ReadLine();
 
-            Console.Write("Введіть ім'я: ");
-            string firstName = Console.ReadLine();
-            Console.Write("Введіть прізвище: ");
-            string lastName = Console.ReadLine();
-            Console.Write("Введіть вік: ");
-            int age = int.Parse(Console.ReadLine());
-            Console.Write("Введіть національність: ");
-            string nationality = Console.ReadLine();
-            Console.Write("Введіть зарплату: ");
-            int salary = int.Parse(Console.ReadLine());
+                if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+                    throw new InvalidOperationException("Ім'я користувача та пароль не можуть бути пустими.");
 
-            Console.WriteLine("Виберіть рівень знань: 1. Початківець, 2. Середній, 3. Професіонал");
-            ClientLevel level = (ClientLevel)(int.Parse(Console.ReadLine()) - 1);
+                if (fitnessCenter.Accounts.Any(a => a.Username == username))
+                    throw new InvalidOperationException("Це ім'я користувача вже існує. Виберіть інший.");
 
-            Trainer trainer = new Trainer(firstName, lastName, age, nationality, salary, level);
-            TrainerAccount account = new TrainerAccount(username, password, trainer);
-            fitnessCenter.RegisterAccount(account);
+                Console.Write("Введіть ім'я: ");
+                string firstName = Console.ReadLine();
+                Console.Write("Введіть прізвище: ");
+                string lastName = Console.ReadLine();
+                Console.Write("Введіть вік: ");
+                if (!int.TryParse(Console.ReadLine(), out int age) || age <= 0)
+                    throw new ArgumentException("Недійсний вік. Вік має бути додатним числом.");
+
+                Console.Write("Введіть національність: ");
+                string nationality = Console.ReadLine();
+                Console.Write("Введіть зарплату: ");
+                if (!int.TryParse(Console.ReadLine(), out int salary) || salary <= 0)
+                    throw new ArgumentException("Недійсна зарплата. Введіть додатнє число.");
+
+                Console.WriteLine("Виберіть для кого ви зможите проводити заняття: 1. Початківець, 2. Середній, 3. Професіонал");
+                int levelChoice;
+                while (!int.TryParse(Console.ReadLine(), out levelChoice) || levelChoice < 1 || levelChoice > 3)
+                {
+                    Console.WriteLine("Invalid level. Try again.");
+                }
+
+                ClientLevel level = (ClientLevel)(levelChoice - 1);
+
+                Trainer trainer = new Trainer(firstName, lastName, age, nationality, salary, level);
+                TrainerAccount account = new TrainerAccount(username, password, trainer);
+                fitnessCenter.RegisterAccount(account);
+
+                fitnessCenter.Trainers.Add(trainer);
+
+                //Console.ForegroundColor = ConsoleColor.Green;
+                //Console.WriteLine($"Тренер {firstName} успішно зареєстрований з логіном: {username}");
+                //Console.ResetColor();
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Помилка: {ex.Message}");
+                Console.ResetColor();
+            }
+            catch (ArgumentException ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Помилка введення: {ex.Message}");
+                Console.ResetColor();
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Несподівана помилка: {ex.Message}");
+                Console.ResetColor();
+            }
         }
+
 
         static void Login()
         {
+            Console.Clear();
             Console.Write("Введіть Ім'я користувача: ");
             string username = Console.ReadLine();
             Console.Write("Введіть Пароль: ");
@@ -204,35 +284,44 @@ namespace FitnessCenterProject
             var account = fitnessCenter.Accounts.FirstOrDefault(a => a.Username == username && a.Password == password);
             if (account is ClientAccount clientAccount)
             {
-                Console.WriteLine("Вхід успішно виконано.");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Вхід успішно виконано.\n");
+                Console.ResetColor();
                 while (true)
                 {
-                    Console.WriteLine("Ваші тренування:");
+                    Console.ForegroundColor = ConsoleColor.DarkBlue;
+                    Console.WriteLine("\nВаші тренування:");
+                    Console.ResetColor();
                     var clientTrainings = fitnessCenter.Trainings
                         .Where(t => t.Clients.Contains(clientAccount.Client))
                         .ToList();
 
                     if (!clientTrainings.Any())
                     {
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Тренувань не знайдено.");
+                        Console.ResetColor();
                     }
                     else
                     {
-                        Console.WriteLine("-----------------------------------------------------------------------------");
-                        Console.WriteLine("| № | Тренування       | Дата       | Час    | Тренер        | Статус          |");
-                        Console.WriteLine("-----------------------------------------------------------------------------");
+                        Console.WriteLine("-------------------------------------------------------------------------------------------");
+                        Console.WriteLine("| №   | Тренування      | Дата       | Час   | Тренер               | Статус              |");
+                        Console.WriteLine("-------------------------------------------------------------------------------------------");
 
                         int index = 1;
                         foreach (var training in clientTrainings)
                         {
                             string status = training.IsIndividual ? "Індивідуальні тренування" : $"Місць лишилося: {training.Hall.Capacity - training.Clients.Count}";
-                            Console.WriteLine($"| {index++,-2} | {training.Type,-15} | {training.Date:dd.MM.yyyy} | {training.Date:HH:mm} | {training.Trainer.FirstName} {training.Trainer.LastName,-10} | {status,-16} |");
+                            string trainerName = $"{training.Trainer.FirstName} {training.Trainer.LastName}".PadRight(20);
+                            Console.WriteLine($"| {index++,-3} | {training.Type,-15} | {training.Date:dd.MM.yyyy} | {training.Date:HH:mm} | {trainerName,-20} | {status,-20} |");
                         }
 
-                        Console.WriteLine("-----------------------------------------------------------------------------");
-                    }
+                        Console.WriteLine("-------------------------------------------------------------------------------------------");
 
+                    }
+                    Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine("Бажаєте зареєструватися на інший тренінг? (так/ні)");
+                    Console.ResetColor();
                     string choice = Console.ReadLine()?.ToLower();
                     if (choice != "так")
                     {
@@ -244,12 +333,17 @@ namespace FitnessCenterProject
             }
             else
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Недійсні облікові дані.");
+                Console.ResetColor();
             }
         }
         static void ViewSchedule()
         {
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("Оберіть дату (від сьогодні до 7 днів включно):");
+            Console.ResetColor();
             for (int i = 0; i < 7; i++)
             {
                 Console.WriteLine($"{i + 1}. {DateTime.Today.AddDays(i):dd.MM.yyyy}");
@@ -258,7 +352,9 @@ namespace FitnessCenterProject
             int daySelection;
             while (!int.TryParse(Console.ReadLine(), out daySelection) || daySelection < 1 || daySelection > 7)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Невірний вибір. Спробуйте ще раз.");
+                Console.ResetColor();
             }
 
             DateTime selectedDate = DateTime.Today.AddDays(daySelection - 1);

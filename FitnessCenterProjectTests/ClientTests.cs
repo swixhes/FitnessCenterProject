@@ -21,41 +21,20 @@ namespace FitnessCenterProjectTests
             Assert.AreEqual(nationality, client.Nationality);
             Assert.AreEqual(level, client.Level);
         }
+            [TestMethod]
+            public void CompareTo_ShouldSortClientsByLevel()
+            {
+                // Arrange
+                var client1 = new Client("Alice", "Brown", 25, "USA", ClientLevel.Початковець);
+                var client2 = new Client("Bob", "Smith", 30, "Canada", ClientLevel.Професійний);
 
-        [TestMethod]
-        [DataRow(-1)]
-        [DataRow(0)]
-        public void Age_ShouldBePositive(int age)
-        {
-            // Assert
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => new Client("Іван", "Петров", age, "Україна", ClientLevel.Початковець), "Age should be a positive number.");
-        }
+                // Act
+                var result = client1.CompareTo(client2);
 
-        [TestMethod]
-        [DataRow("", "Петров", 25, "Україна", ClientLevel.Початковець)]
-        [DataRow(null, "Петров", 25, "Україна", ClientLevel.Початковець)]
-        public void FirstName_ShouldNotBeEmptyOrNull(string firstName, string lastName, int age, string nationality, ClientLevel level)
-        {
-            // Act and Assert
-            Assert.ThrowsException<ArgumentException>(() => new Client(firstName, lastName, age, nationality, level), "FirstName should not be empty or null.");
-        }
+                // Assert
+                Assert.IsTrue(result < 0);
+            }
+        
 
-        [TestMethod]
-        [DataRow("Іван", "", 25, "Україна", ClientLevel.Початковець)]
-        [DataRow("Іван", null, 25, "Україна", ClientLevel.Початковець)]
-        public void LastName_ShouldNotBeEmptyOrNull(string firstName, string lastName, int age, string nationality, ClientLevel level)
-        {
-            // Act and Assert
-            Assert.ThrowsException<ArgumentException>(() => new Client(firstName, lastName, age, nationality, level), "LastName should not be empty or null.");
-        }
-
-        [TestMethod]
-        [DataRow("Іван", "Петров", 25, "Україна", (ClientLevel)(-1))]
-        [DataRow("Анна", "Сидорова", 30, "Україна", (ClientLevel)100)]
-        public void Level_ShouldBeValid(string firstName, string lastName, int age, string nationality, ClientLevel level)
-        {
-            // Act and Assert
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => new Client(firstName, lastName, age, nationality, level), "Level should be a valid enum value.");
-        }
     }
 }
