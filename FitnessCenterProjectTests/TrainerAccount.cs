@@ -15,7 +15,7 @@ namespace FitnessCenterProjectTests
         {
             // Arrange
             var trainer = new Trainer("Іван", "Іванов", 30, "Україна", 20000, ClientLevel.Середній);
-            var trainerAccount = new TrainerAccount("trainer123", "securePass", trainer);
+            var trainerAccount = new TrainerAccount("trainer123", "securePass", trainer, (msg, color) => { });
 
             // Act
             var isValid = trainerAccount.ValidateInput(trainerAccount.Username, trainerAccount.Password);
@@ -29,7 +29,7 @@ namespace FitnessCenterProjectTests
         {
             // Arrange
             var trainer = new Trainer("Іван", "Іванов", 30, "Україна", 20000, ClientLevel.Середній);
-            var trainerAccount = new TrainerAccount("", "short", trainer);
+            var trainerAccount = new TrainerAccount("", "short", trainer, (msg, color) => { });
 
             // Act
             var isValid = trainerAccount.ValidateInput(trainerAccount.Username, trainerAccount.Password);

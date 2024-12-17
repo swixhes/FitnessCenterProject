@@ -25,50 +25,59 @@ namespace FitnessCenterProject
             Accounts = new List<Account>();
         }
 
+        // Делегат для виводу повідомлень
+        public Action<string, ConsoleColor> OnMessage;
+
+        // Події
+        public event Action<Client> OnClientRegistered;
+        public event Action<Trainer> OnTrainerRegistered;
+
         public void RegisterAccount(Account account)
         {
             if (Accounts.Any(a => string.Equals(a.Username, account.Username, StringComparison.OrdinalIgnoreCase)))
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Цей логін вже використовується. Виберіть інший.");
-                Console.ResetColor();
+                OnMessage?.Invoke("Цей логін вже використовується. Виберіть інший.", ConsoleColor.Red);
                 return;
             }
 
             account.Register();
             Accounts.Add(account);
+
+            // Відповідно до типу облікового запису викликаємо події
+            if (account is ClientAccount clientAccount)
+            {
+                Clients.Add(clientAccount.Client);
+                OnClientRegistered?.Invoke(clientAccount.Client);
+            }
+            else if (account is TrainerAccount trainerAccount)
+            {
+                Trainers.Add(trainerAccount.Trainer);
+                OnTrainerRegistered?.Invoke(trainerAccount.Trainer);
+            }
         }
 
         public void ChooseTraining(Client client)
         {
-            Console.ForegroundColor = ConsoleColor.DarkMagenta;
-            Console.WriteLine("\nОберіть дату (від сьогодні до 7 днів включно):");
-            Console.ResetColor();
+            OnMessage?.Invoke("\nОберіть дату (від сьогодні до 7 днів включно):", ConsoleColor.DarkMagenta);
             for (int i = 0; i < 7; i++)
             {
-                Console.WriteLine($"{i + 1}. {DateTime.Today.AddDays(i):dd.MM.yyyy}");
+                OnMessage?.Invoke($"{i + 1}. {DateTime.Today.AddDays(i):dd.MM.yyyy}", ConsoleColor.Black);
             }
 
             int daySelection;
             while (!int.TryParse(Console.ReadLine(), out daySelection) || daySelection < 1 || daySelection > 7)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                throw new ArgumentException("Невірний вибір. Спробуйте ще раз.");
-                
+                OnMessage?.Invoke("Невірний вибір. Спробуйте ще раз.", ConsoleColor.Red);
             }
-            Console.ResetColor();
+
             DateTime selectedDate = DateTime.Today.AddDays(daySelection - 1);
             DisplayTrainings(selectedDate);
 
-            Console.ForegroundColor = ConsoleColor.DarkCyan;
-            Console.WriteLine("Оберіть номер групового тренування або введіть 0 для індивідуального тренування:");
-            Console.ResetColor();
+            OnMessage?.Invoke("Оберіть номер групового тренування або введіть 0 для індивідуального тренування:", ConsoleColor.Black);
             int choice;
             while (!int.TryParse(Console.ReadLine(), out choice) || choice < 0 || choice > Trainings.Count)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Невірний вибір. Спробуйте ще раз.");
-                Console.ResetColor();
+                OnMessage?.Invoke("Невірний вибір. Спробуйте ще раз.", ConsoleColor.Red);
             }
 
             if (choice == 0)
@@ -86,54 +95,41 @@ namespace FitnessCenterProject
                     {
                         if (selectedTraining.AddClient(client))
                         {
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine($"\nКлієнт {client.FirstName} успішно зареєстрований на це групове тренування.");
-                            Console.ResetColor();
+                            OnMessage?.Invoke($"\nКлієнт {client.FirstName} успішно зареєстрований на це групове тренування.", ConsoleColor.Green);
                         }
                     }
                     else
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Клієнт вже зареєстрований на це тренування.");
-                        Console.ResetColor();
+                        OnMessage?.Invoke("Клієнт вже зареєстрований на це тренування.", ConsoleColor.Red);
                     }
                 }
                 else
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Вибране тренування недоступне.");
-                    Console.ResetColor();
+                    OnMessage?.Invoke("Вибране тренування недоступне.", ConsoleColor.Red);
                 }
             }
         }
         private void ScheduleIndividualTraining(Client client, DateTime date)
         {
-            Console.ForegroundColor = ConsoleColor.DarkMagenta;
-            Console.WriteLine("\nОберіть вид тренування:");
-            Console.ResetColor();
+            OnMessage?.Invoke("\nОберіть вид тренування:", ConsoleColor.DarkMagenta);
             foreach (var type in Enum.GetValues(typeof(TrainingType)))
             {
-                Console.WriteLine($"{(int)type + 1}. {type}");
+                OnMessage?.Invoke($"{(int)type + 1}. {type}", ConsoleColor.Black);
             }
 
             int trainingTypeChoice;
             while (!int.TryParse(Console.ReadLine(), out trainingTypeChoice) || trainingTypeChoice < 1 || trainingTypeChoice > Enum.GetValues(typeof(TrainingType)).Length)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Невірний вибір. Спробуйте ще раз.");
-                Console.ResetColor();
+                OnMessage?.Invoke("Невірний вибір. Спробуйте ще раз.", ConsoleColor.Red);
             }
 
             var chosenTrainingType = (TrainingType)(trainingTypeChoice - 1);
-            Console.ForegroundColor = ConsoleColor.DarkMagenta;
-            Console.WriteLine("\nВведіть час для індивідуального тренування (формат HH:mm):");
-            Console.ResetColor();
+            OnMessage?.Invoke("\nВведіть час для індивідуального тренування (формат HH:mm):", ConsoleColor.DarkMagenta);
+
             TimeSpan time;
-            while (!TimeSpan.TryParse(Console.ReadLine(), out time))
+            while (!TimeSpan.TryParse(Console.ReadLine(), out time) || time.Hours < 8 || time.Hours >= 21)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Невірний час. Спробуйте ще раз.");
-                Console.ResetColor();
+                OnMessage?.Invoke("Фітнес центр відкритий з 08:00 до 21:00. Введіть коректний час.", ConsoleColor.Red);
             }
 
             DateTime trainingDateTime = date.Add(time);
@@ -141,53 +137,43 @@ namespace FitnessCenterProject
             var existingTraining = Trainings.FirstOrDefault(t => t.Date == trainingDateTime && t.Clients.Contains(client));
             if (existingTraining != null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Ви вже зареєстровані на тренування в цей час.");
-                Console.ResetColor();
+                OnMessage?.Invoke("Ви вже зареєстровані на тренування в цей час.", ConsoleColor.Red);
                 return;
             }
 
             var availableTrainers = Trainers.ToList();
-            Console.ForegroundColor = ConsoleColor.DarkMagenta;
-            Console.WriteLine("\nДоступні тренери:");
-            Console.ResetColor();
+            OnMessage?.Invoke("\nДоступні тренери:", ConsoleColor.DarkMagenta);
             for (int i = 0; i < availableTrainers.Count; i++)
             {
-                Console.WriteLine($"{i + 1}. {availableTrainers[i].FirstName} {availableTrainers[i].LastName}");
+                OnMessage?.Invoke($"{i + 1}. {availableTrainers[i].FirstName} {availableTrainers[i].LastName}", ConsoleColor.Black);
             }
 
-            Console.Write("Оберіть тренера: ");
+            OnMessage?.Invoke("Оберіть тренера: ", ConsoleColor.Black);
             int trainerChoice;
             while (!int.TryParse(Console.ReadLine(), out trainerChoice) || trainerChoice < 1 || trainerChoice > availableTrainers.Count)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Невірний вибір. Спробуйте ще раз.");
-                Console.ResetColor();
+                OnMessage?.Invoke("Невірний вибір. Спробуйте ще раз.", ConsoleColor.Red);
             }
 
             var chosenTrainer = availableTrainers[trainerChoice - 1];
             var hall = Halls.FirstOrDefault(h => h.Capacity > 0);
             if (hall == null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Немає доступних залів для індивідуального тренування.");
-                Console.ResetColor();
+                OnMessage?.Invoke("Немає доступних залів для індивідуального тренування.", ConsoleColor.Red);
                 return;
 
             }
 
-            var training = new Training(chosenTrainingType, chosenTrainer, hall, trainingDateTime, 1, true); // Індивідуальне тренування
+            var training = new Training(chosenTrainingType, chosenTrainer, hall, trainingDateTime, 1, true);
             Trainings.Add(training);
             training.AddClient(client);
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine($"Індивідуальне тренування успішно заброньоване на {training.Date:dd.MM.yyyy HH:mm} з тренером {chosenTrainer.FirstName} {chosenTrainer.LastName}.");
-            Console.ResetColor();
+            OnMessage?.Invoke($"Індивідуальне тренування успішно заброньоване на {training.Date:dd.MM.yyyy HH:mm} з тренером {chosenTrainer.FirstName} {chosenTrainer.LastName}.", ConsoleColor.DarkGreen);
         }
         public void DisplayTrainings(DateTime date)
         {
-            Console.WriteLine("----------------------------------------------------------------------------------------");
-            Console.WriteLine("| №   | Тренування      | Дата       | Час   | Тренер               | Місць залишилось |");
-            Console.WriteLine("----------------------------------------------------------------------------------------");
+            OnMessage?.Invoke("----------------------------------------------------------------------------------------", ConsoleColor.Black);
+            OnMessage?.Invoke("| №   | Тренування      | Дата       | Час   | Тренер               | Місць залишилось |", ConsoleColor.Black);
+            OnMessage?.Invoke("----------------------------------------------------------------------------------------", ConsoleColor.Black);
 
             var availableTrainings = Trainings.Where(t => t.Date.Date == date.Date && !t.IsIndividual).ToList();
             int index = 1;
@@ -196,30 +182,28 @@ namespace FitnessCenterProject
             {
                 int spotsLeft = training.Hall.Capacity - training.Clients.Count;
                 string trainerName = $"{training.Trainer.FirstName} {training.Trainer.LastName}".PadRight(20);
-                Console.WriteLine($"| {index++,-3} | {training.Type,-15} | {training.Date:dd.MM.yyyy} | {training.Date:HH:mm} | {trainerName,-20} | {spotsLeft,-16} |");
+                OnMessage?.Invoke($"| {index++,-3} | {training.Type,-15} | {training.Date:dd.MM.yyyy} | {training.Date:HH:mm} | {trainerName,-20} | {spotsLeft,-16} |", ConsoleColor.Black);
             }
 
             if (!availableTrainings.Any())
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("| Немає доступних тренувань на вибрану дату.                                 |");
-                Console.ResetColor();
+                OnMessage?.Invoke("| Немає доступних тренувань на вибрану дату.                                 |", ConsoleColor.Red);
             }
 
-            Console.WriteLine("----------------------------------------------------------------------------------------\n");
+            OnMessage?.Invoke("----------------------------------------------------------------------------------------\n", ConsoleColor.Black);
         }
 
 
         public void PrintToDisplay()
         {
-            Console.WriteLine($"Fitness Center: {Name}");
-            Console.WriteLine("Clients:");
+            OnMessage?.Invoke($"Fitness Center: {Name}", ConsoleColor.Cyan);
+            OnMessage?.Invoke("Clients:", ConsoleColor.Black);
             foreach (var client in Clients)
             {
                 client.PrintToDisplay();
             }
 
-            Console.WriteLine("Trainers:");
+            OnMessage?.Invoke("Trainers:", ConsoleColor.Black);
             foreach (var trainer in Trainers)
             {
                 trainer.PrintToDisplay();
@@ -230,39 +214,34 @@ namespace FitnessCenterProject
             Console.Clear();
             if (!Clients.Any())
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No registered clients.");
-                Console.ResetColor();
+                OnMessage?.Invoke("Немає зареєстрованих клієнтів.", ConsoleColor.Red);
                 return;
             }
 
-            var sortedClients = Clients.OrderBy(c => c).ToList();
-
-            Console.WriteLine("---------------------------------------------------------------------------------------------");
-            Console.WriteLine("| №   | Ім'я клієнта       | Рівень          | Тренування                                    |");
-            Console.WriteLine("---------------------------------------------------------------------------------------------");
+            OnMessage?.Invoke("------------------------------------------------------------------------------------------------------", ConsoleColor.Black);
+            OnMessage?.Invoke("| №   | Ім'я клієнта       | Вік   | Рівень          | Тренування                                    |", ConsoleColor.Black);
+            OnMessage?.Invoke("------------------------------------------------------------------------------------------------------", ConsoleColor.Black);
 
             int index = 1;
-            foreach (var client in sortedClients)
+            foreach (var client in Clients.OrderBy(c => c))
             {
                 var clientTrainings = Trainings.Where(t => t.Clients.Contains(client)).ToList();
 
                 if (!clientTrainings.Any())
                 {
-                    Console.WriteLine($"| {index++,-3} | {client.FirstName,-18} | {client.Level,-15} | Немає тренувань                               |");
+                    OnMessage?.Invoke($"| {index++,-3} | {client.FirstName,-18} | {client.Age,-5} | {client.Level,-15} | Немає тренувань                               |", ConsoleColor.Black);
                 }
                 else
                 {
                     foreach (var training in clientTrainings)
                     {
                         string trainingInfo = $"{training.Type}, {training.Date:dd.MM.yyyy HH:mm}, {training.Trainer.FirstName} {training.Trainer.LastName}";
-                        Console.WriteLine($"| {index++,-3} | {client.FirstName,-18} | {client.Level,-15} | {trainingInfo,-45} |");
+                        OnMessage?.Invoke($"| {index++,-3} | {client.FirstName,-18} | {client.Age,-5} | {client.Level,-15} | {trainingInfo,-45} |", ConsoleColor.Black);
                     }
                 }
             }
 
-            Console.WriteLine("---------------------------------------------------------------------------------------------");
-
+            OnMessage?.Invoke("------------------------------------------------------------------------------------------------------", ConsoleColor.Black);
         }
 
 

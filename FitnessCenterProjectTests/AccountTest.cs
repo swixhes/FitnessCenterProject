@@ -18,7 +18,7 @@ namespace FitnessCenterProjectTests
         public void ValidateInput_ShouldValidateUsernameAndPassword(string username, string password, bool expected)
         {
             // Arrange
-            var account = new TrainerAccount(username, password, new Trainer("Test", "Trainer", 30, "USA", 1000, ClientLevel.Середній));
+            var account = new TrainerAccount(username, password, new Trainer("Test", "Trainer", 30, "USA", 1000, ClientLevel.Середній), (msg, color) => { });
 
             // Act
             var result = account.ValidateInput(username, password);

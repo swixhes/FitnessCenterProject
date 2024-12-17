@@ -12,26 +12,25 @@ namespace FitnessCenterProject
         public override string Password { get; set; }
         public Trainer Trainer { get; set; }
 
-        public TrainerAccount(string username, string password, Trainer trainer)
+        // Делегат для повідомлень
+        private readonly Action<string, ConsoleColor> onMessage;
+        public TrainerAccount(string username, string password, Trainer trainer, Action<string, ConsoleColor> onMessage)
         {
             Username = username;
             Password = password;
             Trainer = trainer;
+            this.onMessage = onMessage;
         }
         public override void Register()
         {
             if (ValidateInput(Username, Password))
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"\nТренер {Trainer.FirstName} успішно зареєстровано логіном: {Username}");
-                Console.ResetColor();
-                Console.WriteLine($"\nВи успішно влаштовані на випробувальний термін.");
+                //onMessage?.Invoke($"\nТренер {Trainer.FirstName} успішно зареєстрований логіном: {Username}", ConsoleColor.Green);
+                onMessage?.Invoke($"\nВи успішно влаштовані на випробувальний термін.", ConsoleColor.Cyan);
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Недійсне ім'я користувача або пароль. Помилка реєстрації.");
-                Console.ResetColor();
+                onMessage?.Invoke("Недійсне ім'я користувача або пароль. Помилка реєстрації.", ConsoleColor.Red);
             }
         }
     }

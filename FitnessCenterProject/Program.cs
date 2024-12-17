@@ -9,15 +9,51 @@ namespace FitnessCenterProject
     {
         static FitnessCenter fitnessCenter = new FitnessCenter("MyFitness");
 
+        // Делегат для кольорового виводу
+        static Action<string, ConsoleColor> DisplayMessage = (message, color) =>
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine(message);
+            Console.ResetColor();
+        };
+
+        // Func для обчислення середнього віку клієнтів
+        static Func<List<Client>, double> CalculateAverageAge = (clients) =>
+        {
+            return clients.Any() ? clients.Average(c => c.Age) : 0;
+        };
+
+        // Власний делегат для привітання клієнта
+        delegate void WelcomeClient(Client client);
+        static WelcomeClient OnWelcomeClient = (client) =>
+        {
+            DisplayMessage($"Власний делегат - Вітаємо нового клієнта: {client.FirstName} {client.LastName}!", ConsoleColor.Yellow);
+        };
+
         static void Main(string[] args)
         {
             Console.OutputEncoding = UTF8Encoding.UTF8;
+
+            // Підписка на події
+            fitnessCenter.OnClientRegistered += (client) =>
+            {
+                DisplayMessage($"Подія: Клієнт {client.FirstName} {client.LastName} зареєстрований!", ConsoleColor.DarkGreen);
+                OnWelcomeClient(client);
+            };
+
+            fitnessCenter.OnTrainerRegistered += (trainer) =>
+            {
+                DisplayMessage($"Подія: Тренер {trainer.FirstName} {trainer.LastName} доданий!", ConsoleColor.DarkGreen);
+            };
+
             InitializeFitnessCenter();
             MainMenu();
         }
 
         static void InitializeFitnessCenter()
         {
+            fitnessCenter.OnMessage = DisplayMessage; 
+
             // Додавання залів
             fitnessCenter.Halls.Add(new Hall("Кардіо зал", 20));
             fitnessCenter.Halls.Add(new Hall("Силовий зал", 15));
@@ -39,7 +75,7 @@ namespace FitnessCenterProject
                 TrainingType.Кардіо,
                 fitnessCenter.Trainers[0],
                 fitnessCenter.Halls.First(h => h.Name == "Кардіо зал"),
-                new DateTime(2024, 12, 6, 12, 0, 0),
+                new DateTime(2024, 12, 18, 12, 0, 0),
                 20 // Максимальна кількість місць для цього тренування
             ));
 
@@ -47,7 +83,7 @@ namespace FitnessCenterProject
                 TrainingType.Силові,
                 fitnessCenter.Trainers[1],
                 fitnessCenter.Halls.First(h => h.Name == "Силовий зал"),
-                new DateTime(2024, 12, 6, 14, 0, 0),
+                new DateTime(2024, 12, 19, 14, 0, 0),
                 15
             ));
 
@@ -55,7 +91,7 @@ namespace FitnessCenterProject
                 TrainingType.Йога,
                 fitnessCenter.Trainers[2],
                 fitnessCenter.Halls.First(h => h.Name == "Студія йоги"),
-                new DateTime(2024, 12, 7, 10, 0, 0),
+                new DateTime(2024, 12, 20, 10, 0, 0),
                 10
             ));
 
@@ -63,7 +99,7 @@ namespace FitnessCenterProject
                 TrainingType.Плавання,
                 fitnessCenter.Trainers[3],
                 fitnessCenter.Halls.First(h => h.Name == "Басейн"),
-                new DateTime(2024, 12, 8, 16, 0, 0),
+                new DateTime(2024, 12, 21, 16, 0, 0),
                 25
             ));
 
@@ -71,7 +107,7 @@ namespace FitnessCenterProject
                 TrainingType.Аеробіка,
                 fitnessCenter.Trainers[4],
                 fitnessCenter.Halls.First(h => h.Name == "Зал аеробіки"),
-                new DateTime(2024, 12, 9, 18, 0, 0),
+                new DateTime(2024, 12, 22, 18, 0, 0),
                 18
             ));
 
@@ -79,7 +115,7 @@ namespace FitnessCenterProject
                 TrainingType.Пілатес,
                 fitnessCenter.Trainers[5],
                 fitnessCenter.Halls.First(h => h.Name == "Студія пілатесу"),
-                new DateTime(2024, 12, 10, 9, 0, 0),
+                new DateTime(2024, 12, 23, 9, 0, 0),
                 12
             ));
         }
@@ -89,19 +125,17 @@ namespace FitnessCenterProject
             while (true)
             {
                 Console.Clear();
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("\nЗапрошуємо до MyFitness!");
-                Console.ResetColor();
+                DisplayMessage("\nЗапрошуємо до MyFitness!", ConsoleColor.Green);
                 Console.WriteLine("1. Реєстрація клієнта");
                 Console.WriteLine("2. Резюме тренера");
                 Console.WriteLine("3. Вхід");
                 Console.WriteLine("4. Розклад фітнес центру");
                 Console.WriteLine("5. Переглянути клієнтів і тренінги");
+                Console.WriteLine("6. Підрахувати середній вік клієнтів");
                 Console.WriteLine("0. Вихід");
                 Console.Write("Виберіть варіант: ");
-                string option = Console.ReadLine();
 
-                switch (option)
+                switch (Console.ReadLine())
                 {
                     case "1":
                         RegisterClient();
@@ -118,157 +152,213 @@ namespace FitnessCenterProject
                     case "5":
                         fitnessCenter.DisplayClientsWithTrainings();
                         break;
+                    case "6":
+                        double averageAge = CalculateAverageAge(fitnessCenter.Clients);
+                        DisplayMessage($"Середній вік клієнтів: {averageAge:F2} років", ConsoleColor.DarkYellow);
+                        break;
                     case "0":
-                        Console.ForegroundColor = ConsoleColor.DarkGreen;
-                        Console.WriteLine("Допобачення!");
-                        Console.ResetColor();
+                        DisplayMessage("Допобачення!", ConsoleColor.DarkGreen);
                         return;
                     default:
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Недійсний варіант. Спробуйте знову.");
-                        Console.ResetColor();
+                        DisplayMessage("Недійсний варіант. Спробуйте знову.", ConsoleColor.Red);
                         break;
                 }
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine("\nНатисніть будь-яку клавішу, щоб повернутися до меню...");
-                Console.ResetColor();
+                DisplayMessage("\nНатисніть будь-яку клавішу, щоб повернутися до меню...", ConsoleColor.Blue);
                 Console.ReadKey();
             }
         }
-
+        static bool ContainsOnlyLetters(string input)
+        {
+            return input.All(char.IsLetter);
+        }
         static void RegisterClient()
         {
-            try
+            while (true)
             {
-                Console.Clear();
-                Console.Write("Введіть Ім'я користувача: ");
-                string username = Console.ReadLine();
-                Console.Write("Введіть Пароль: ");
-                string password = Console.ReadLine();
-
-                if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
-                    throw new InvalidOperationException("Ім'я користувача та пароль не можуть бути пустими.");
-
-                if (fitnessCenter.Accounts.Any(a => a.Username == username))
-                    throw new InvalidOperationException("Це ім'я користувача вже існує. Виберіть інший.");
-
-                Console.Write("Введіть ім'я: ");
-                string firstName = Console.ReadLine();
-                Console.Write("Введіть прізвище: ");
-                string lastName = Console.ReadLine();
-                Console.Write("Введіть вік: ");
-                if (!int.TryParse(Console.ReadLine(), out int age) || age <= 0)
-                    throw new ArgumentException("Недійсний вік. Вік має бути додатним числом.");
-                Console.Write("Введіть національність: ");
-                string nationality = Console.ReadLine();
-
-                Console.WriteLine("Виберіть рівень навчання: 1. Початківець, 2. Середній, 3. Професіонал");
-                int levelChoice;
-                while (!int.TryParse(Console.ReadLine(), out levelChoice) || levelChoice < 1 || levelChoice > 3)
+                try
                 {
-                    Console.WriteLine("Не правильний вибір. Спробуйте знову.");
+                    Console.Clear();
+                    string username;
+                    do
+                    {
+                        Console.Write("Введіть Nickname: ");
+                        username = Console.ReadLine();
+                        if (string.IsNullOrWhiteSpace(username))
+                            DisplayMessage("Nickname не може бути порожнім. Спробуйте ще раз.", ConsoleColor.Red);
+                    } while (string.IsNullOrWhiteSpace(username) || fitnessCenter.Accounts.Any(a => a.Username == username));
+
+                    string password;
+                    do
+                    {
+                        Console.Write("Введіть Password: ");
+                        password = Console.ReadLine();
+                        if (string.IsNullOrWhiteSpace(password))
+                            DisplayMessage("Password не може бути порожнім. Спробуйте ще раз.", ConsoleColor.Red);
+                    } while (string.IsNullOrWhiteSpace(password));
+
+                    string firstName;
+                    do
+                    {
+                        Console.Write("Введіть ім'я: ");
+                        firstName = Console.ReadLine();
+                        if (string.IsNullOrWhiteSpace(firstName))
+                            DisplayMessage("Ім'я не може бути порожнім. Спробуйте ще раз.", ConsoleColor.Red);
+                        else if (!ContainsOnlyLetters(firstName))
+                            DisplayMessage("Ім'я повинно містити лише літери. Спробуйте ще раз.", ConsoleColor.Red);
+                    } while (string.IsNullOrWhiteSpace(firstName) || !ContainsOnlyLetters(firstName));
+
+                    string lastName;
+                    do
+                    {
+                        Console.Write("Введіть прізвище: ");
+                        lastName = Console.ReadLine();
+                        if (string.IsNullOrWhiteSpace(lastName))
+                            DisplayMessage("Прізвище не може бути порожнім. Спробуйте ще раз.", ConsoleColor.Red);
+                        else if (!ContainsOnlyLetters(lastName))
+                            DisplayMessage("Прізвище повинно містити лише літери. Спробуйте ще раз.", ConsoleColor.Red);
+                    } while (string.IsNullOrWhiteSpace(lastName) || !ContainsOnlyLetters(lastName));
+
+                    int age;
+                    do
+                    {
+                        Console.Write("Введіть вік (15-85): ");
+                        if (!int.TryParse(Console.ReadLine(), out age) || age < 15 || age > 85)
+                            DisplayMessage("Недійсний вік. Вік має бути від 15 до 85 років.", ConsoleColor.Red);
+                    } while (age < 15 || age > 85);
+
+                    string nationality;
+                    do
+                    {
+                        Console.Write("Введіть національність: ");
+                        nationality = Console.ReadLine();
+                        if (string.IsNullOrWhiteSpace(nationality))
+                            DisplayMessage("Національність не може бути порожньою. Спробуйте ще раз.", ConsoleColor.Red);
+                        else if (!ContainsOnlyLetters(nationality))
+                            DisplayMessage("Національність повинна містити лише літери. Спробуйте ще раз.", ConsoleColor.Red);
+                    } while (string.IsNullOrWhiteSpace(nationality) || !ContainsOnlyLetters(nationality));
+
+                    int levelChoice;
+                    do
+                    {
+                        Console.WriteLine("Виберіть рівень навчання: 1. Початківець, 2. Середній, 3. Професіонал");
+                        if (!int.TryParse(Console.ReadLine(), out levelChoice) || levelChoice < 1 || levelChoice > 3)
+                            DisplayMessage("Невірний вибір. Введіть число від 1 до 3.", ConsoleColor.Red);
+                    } while (levelChoice < 1 || levelChoice > 3);
+
+                    ClientLevel level = (ClientLevel)(levelChoice - 1);
+
+                    var client = new Client(firstName, lastName, age, nationality, level);
+                    var account = new ClientAccount(username, password, client, fitnessCenter, DisplayMessage);
+
+                    fitnessCenter.RegisterAccount(account);
+                    fitnessCenter.ChooseTraining(client);
+
+                    break;
                 }
-
-                ClientLevel level = (ClientLevel)(levelChoice - 1);
-
-                var client = new Client(firstName, lastName, age, nationality, level);
-                var account = new ClientAccount(username, password, client, fitnessCenter);
-
-                fitnessCenter.RegisterAccount(account);
-
-                fitnessCenter.Clients.Add(client);
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"Клієнт {firstName} успішно зареєстрований з логіном: {username}\n");
-                Console.ResetColor();
-
-                fitnessCenter.ChooseTraining(client);
-            }
-            catch (InvalidOperationException ex)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Помилка: {ex.Message}");
-                Console.ResetColor();
-            }
-            catch (ArgumentException ex)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Помилка введення: {ex.Message}");
-                Console.ResetColor();
-            }
-            catch (Exception ex)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Несподівана помилка: {ex.Message}");
-                Console.ResetColor();
+                catch (Exception ex)
+                {
+                    DisplayMessage($"Помилка: {ex.Message}. Спробуйте ще раз.", ConsoleColor.Red);
+                }
             }
         }
 
+
         static void ApplyAsTrainer()
         {
-            try
+            while (true)
             {
-                Console.Clear();
-                Console.Write("Введіть Ім'я користувача: ");
-                string username = Console.ReadLine();
-                Console.Write("Введіть Пароль: ");
-                string password = Console.ReadLine();
-
-                if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
-                    throw new InvalidOperationException("Ім'я користувача та пароль не можуть бути пустими.");
-
-                if (fitnessCenter.Accounts.Any(a => a.Username == username))
-                    throw new InvalidOperationException("Це ім'я користувача вже існує. Виберіть інший.");
-
-                Console.Write("Введіть ім'я: ");
-                string firstName = Console.ReadLine();
-                Console.Write("Введіть прізвище: ");
-                string lastName = Console.ReadLine();
-                Console.Write("Введіть вік: ");
-                if (!int.TryParse(Console.ReadLine(), out int age) || age <= 0)
-                    throw new ArgumentException("Недійсний вік. Вік має бути додатним числом.");
-
-                Console.Write("Введіть національність: ");
-                string nationality = Console.ReadLine();
-                Console.Write("Введіть зарплату: ");
-                if (!int.TryParse(Console.ReadLine(), out int salary) || salary <= 0)
-                    throw new ArgumentException("Недійсна зарплата. Введіть додатнє число.");
-
-                Console.WriteLine("Виберіть для кого ви зможите проводити заняття: 1. Початківець, 2. Середній, 3. Професіонал");
-                int levelChoice;
-                while (!int.TryParse(Console.ReadLine(), out levelChoice) || levelChoice < 1 || levelChoice > 3)
+                try
                 {
-                    Console.WriteLine("Invalid level. Try again.");
+                    Console.Clear();
+                    string username;
+                    do
+                    {
+                        Console.Write("Введіть Nickname: ");
+                        username = Console.ReadLine();
+                        if (string.IsNullOrWhiteSpace(username))
+                            DisplayMessage("Nickname не може бути порожнім. Спробуйте ще раз.", ConsoleColor.Red);
+                    } while (string.IsNullOrWhiteSpace(username) || fitnessCenter.Accounts.Any(a => a.Username == username));
+
+
+                    string password;
+                    do
+                    {
+                        Console.Write("Введіть Password: ");
+                        password = Console.ReadLine();
+                        if (string.IsNullOrWhiteSpace(password))
+                            DisplayMessage("Password не може бути порожнім. Спробуйте ще раз.", ConsoleColor.Red);
+                    } while (string.IsNullOrWhiteSpace(password));
+
+                    string firstName;
+                    do
+                    {
+                        Console.Write("Введіть ім'я: ");
+                        firstName = Console.ReadLine();
+                        if (string.IsNullOrWhiteSpace(firstName))
+                            DisplayMessage("Ім'я не може бути порожнім. Спробуйте ще раз.", ConsoleColor.Red);
+                        else if (!ContainsOnlyLetters(firstName))
+                            DisplayMessage("Ім'я повинно містити лише літери. Спробуйте ще раз.", ConsoleColor.Red);
+                    } while (string.IsNullOrWhiteSpace(firstName) || !ContainsOnlyLetters(firstName));
+
+                    string lastName;
+                    do
+                    {
+                        Console.Write("Введіть прізвище: ");
+                        lastName = Console.ReadLine();
+                        if (string.IsNullOrWhiteSpace(lastName))
+                            DisplayMessage("Прізвище не може бути порожнім. Спробуйте ще раз.", ConsoleColor.Red);
+                        else if (!ContainsOnlyLetters(lastName))
+                            DisplayMessage("Прізвище повинно містити лише літери. Спробуйте ще раз.", ConsoleColor.Red);
+                    } while (string.IsNullOrWhiteSpace(lastName) || !ContainsOnlyLetters(lastName));
+
+                    int age;
+                    do
+                    {
+                        Console.Write("Введіть вік (18-85): ");
+                        if (!int.TryParse(Console.ReadLine(), out age) || age < 18 || age > 85)
+                            DisplayMessage("Недійсний вік. Вік має бути від 18 до 85 років.", ConsoleColor.Red);
+                    } while (age < 18 || age > 85);
+
+                    string nationality;
+                    do
+                    {
+                        Console.Write("Введіть національність: ");
+                        nationality = Console.ReadLine();
+                        if (string.IsNullOrWhiteSpace(nationality))
+                            DisplayMessage("Національність не може бути порожньою. Спробуйте ще раз.", ConsoleColor.Red);
+                        else if (!ContainsOnlyLetters(nationality))
+                            DisplayMessage("Національність повинна містити лише літери. Спробуйте ще раз.", ConsoleColor.Red);
+                    } while (string.IsNullOrWhiteSpace(nationality) || !ContainsOnlyLetters(nationality));
+
+                    int salary;
+                    do
+                    {
+                        Console.Write("Введіть зарплату: ");
+                        if (!int.TryParse(Console.ReadLine(), out salary) || salary <= 0)
+                            DisplayMessage("Недійсна зарплата. Введіть додатнє число.", ConsoleColor.Red);
+                    } while (salary <= 0);
+
+                    int levelChoice;
+                    do
+                    {
+                        Console.WriteLine("Виберіть рівень спеціалізації: 1. Початківець, 2. Середній, 3. Професіонал");
+                        if (!int.TryParse(Console.ReadLine(), out levelChoice) || levelChoice < 1 || levelChoice > 3)
+                            DisplayMessage("Невірний вибір. Введіть число від 1 до 3.", ConsoleColor.Red);
+                    } while (levelChoice < 1 || levelChoice > 3);
+
+                    ClientLevel level = (ClientLevel)(levelChoice - 1);
+
+                    var trainer = new Trainer(firstName, lastName, age, nationality, salary, level);
+                    var account = new TrainerAccount(username, password, trainer, DisplayMessage);
+
+                    fitnessCenter.RegisterAccount(account);
+
+                    break;
                 }
-
-                ClientLevel level = (ClientLevel)(levelChoice - 1);
-
-                Trainer trainer = new Trainer(firstName, lastName, age, nationality, salary, level);
-                TrainerAccount account = new TrainerAccount(username, password, trainer);
-                fitnessCenter.RegisterAccount(account);
-
-                fitnessCenter.Trainers.Add(trainer);
-
-                //Console.ForegroundColor = ConsoleColor.Green;
-                //Console.WriteLine($"Тренер {firstName} успішно зареєстрований з логіном: {username}");
-                //Console.ResetColor();
-            }
-            catch (InvalidOperationException ex)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Помилка: {ex.Message}");
-                Console.ResetColor();
-            }
-            catch (ArgumentException ex)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Помилка введення: {ex.Message}");
-                Console.ResetColor();
-            }
-            catch (Exception ex)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Несподівана помилка: {ex.Message}");
-                Console.ResetColor();
+                catch (Exception ex)
+                {
+                    DisplayMessage($"Помилка: {ex.Message}. Спробуйте ще раз.", ConsoleColor.Red);
+                }
             }
         }
 
@@ -276,9 +366,9 @@ namespace FitnessCenterProject
         static void Login()
         {
             Console.Clear();
-            Console.Write("Введіть Ім'я користувача: ");
+            Console.Write("Введіть Nickname: ");
             string username = Console.ReadLine();
-            Console.Write("Введіть Пароль: ");
+            Console.Write("Введіть Password: ");
             string password = Console.ReadLine();
 
             var account = fitnessCenter.Accounts.FirstOrDefault(a => a.Username == username && a.Password == password);
@@ -341,24 +431,22 @@ namespace FitnessCenterProject
         static void ViewSchedule()
         {
             Console.Clear();
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("Оберіть дату (від сьогодні до 7 днів включно):");
-            Console.ResetColor();
+
             for (int i = 0; i < 7; i++)
-            {
-                Console.WriteLine($"{i + 1}. {DateTime.Today.AddDays(i):dd.MM.yyyy}");
-            }
+                DisplayMessage($"{i + 1}. {DateTime.Today.AddDays(i):dd.MM.yyyy}", ConsoleColor.Black);
+            int daySelection = int.Parse(Console.ReadLine());
+            fitnessCenter.DisplayTrainings(DateTime.Today.AddDays(daySelection - 1));
+            //int daySelection;
+            //while (!int.TryParse(Console.ReadLine(), out daySelection) || daySelection < 1 || daySelection > 7)
+            //{
+            //    Console.ForegroundColor = ConsoleColor.Red;
+            //    Console.WriteLine("Невірний вибір. Спробуйте ще раз.");
+            //    Console.ResetColor();
+            //}
 
-            int daySelection;
-            while (!int.TryParse(Console.ReadLine(), out daySelection) || daySelection < 1 || daySelection > 7)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Невірний вибір. Спробуйте ще раз.");
-                Console.ResetColor();
-            }
-
-            DateTime selectedDate = DateTime.Today.AddDays(daySelection - 1);
-            fitnessCenter.DisplayTrainings(selectedDate);
+            //DateTime selectedDate = DateTime.Today.AddDays(daySelection - 1);
+            //fitnessCenter.DisplayTrainings(selectedDate);
         }
     }
 }

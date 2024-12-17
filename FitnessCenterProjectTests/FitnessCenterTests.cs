@@ -27,7 +27,7 @@ namespace FitnessCenterProjectTests
             // Arrange
             var fitnessCenter = new FitnessCenter("MyFitness");
             var client = new Client("John", "Doe", 30, "USA", ClientLevel.Початковець);
-            var account = new ClientAccount("johndoe", "password123", client, fitnessCenter);
+            var account = new ClientAccount("johndoe", "password123", client, fitnessCenter, (msg, color) => { });
 
             // Act
             fitnessCenter.RegisterAccount(account);
@@ -95,11 +95,11 @@ namespace FitnessCenterProjectTests
             // Arrange
             var fitnessCenter = new FitnessCenter("MyFitness");
             var client1 = new Client("John", "Doe", 30, "USA", ClientLevel.Початковець);
-            var account1 = new ClientAccount("johndoe", "password123", client1, fitnessCenter);
+            var account1 = new ClientAccount("johndoe", "password123", client1, fitnessCenter, (msg, color) => { });
             fitnessCenter.RegisterAccount(account1);
 
             var client2 = new Client("John", "Doe", 25, "USA", ClientLevel.Початковець);
-            var account2 = new ClientAccount("johndoe", "newpassword", client2, fitnessCenter);
+            var account2 = new ClientAccount("johndoe", "newpassword", client2, fitnessCenter, (msg, color) => { });
 
             // Act
             fitnessCenter.RegisterAccount(account2);

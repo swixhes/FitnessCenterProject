@@ -17,7 +17,10 @@ namespace FitnessCenterProject
         public int MaxParticipants { get; set; }
         public bool IsIndividual { get; set; }
 
-        public Training(TrainingType type, Trainer trainer, Hall hall, DateTime date, int maxParticipants, bool isIndividual = false)
+        // Делегат для виводу повідомлень
+        private readonly Action<string, ConsoleColor> OnMessage;
+
+        public Training(TrainingType type, Trainer trainer, Hall hall, DateTime date, int maxParticipants, bool isIndividual = false, Action<string, ConsoleColor> onMessage = null)
         {
             Type = type;
             Trainer = trainer;
@@ -26,6 +29,7 @@ namespace FitnessCenterProject
             MaxParticipants = maxParticipants;
             Clients = new List<Client>();
             IsIndividual = isIndividual;
+            OnMessage = onMessage;
         }
 
         public Training(TrainingType strength, Trainer chosenTrainer, Hall hall, DateTime dateTime)
@@ -37,35 +41,31 @@ namespace FitnessCenterProject
         {
             if (Clients.Contains(client))
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Клієнт {client.FirstName} вже зареєстрований на цей тренінг.");
-                Console.ResetColor();
+                OnMessage?.Invoke($"Клієнт {client.FirstName} вже зареєстрований на це тренування.", ConsoleColor.Red);
                 return false;
             }
 
             if (Clients.Count >= MaxParticipants)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                throw new InvalidOperationException("Цей тренінг повний. Більше клієнтів не можна додати.");
+                OnMessage?.Invoke("Цей тренінг повний. Більше клієнтів не можна додати.", ConsoleColor.Red);
+                throw new InvalidOperationException("Цей тренінг повний.");
             }
-            Console.ResetColor();
 
             Clients.Add(client);
-            //Console.ForegroundColor = ConsoleColor.Green;
-            //Console.WriteLine($"Клієнт {client.FirstName} доданий на це тренування.");
-            //Console.ResetColor();
+            OnMessage?.Invoke($"Клієнт {client.FirstName} доданий на це тренування.", ConsoleColor.Green);
             return true;
         }
+
         public void PrintToDisplay()
         {
             if (IsIndividual)
             {
-                Console.WriteLine($"Тренування: {Type}, Дата: {Date:dd.MM.yyyy}, Час: {Date:HH:mm}, Тренер: {Trainer.FirstName} {Trainer.LastName}, Індивідуальне тренування");
+                OnMessage?.Invoke($"Тренування: {Type}, Дата: {Date:dd.MM.yyyy}, Час: {Date:HH:mm}, Тренер: {Trainer.FirstName} {Trainer.LastName}, Індивідуальне тренування", ConsoleColor.Black);
             }
             else
             {
                 int spotsLeft = MaxParticipants - Clients.Count;
-                Console.WriteLine($"Тренування: {Type}, Дата: {Date:dd.MM.yyyy}, Час: {Date:HH:mm}, Тренер: {Trainer.FirstName} {Trainer.LastName}, Місць лишилось: {spotsLeft}");
+                OnMessage?.Invoke($"Тренування: {Type}, Дата: {Date:dd.MM.yyyy}, Час: {Date:HH:mm}, Тренер: {Trainer.FirstName} {Trainer.LastName}, Місць лишилось: {spotsLeft}", ConsoleColor.Black);
             }
         }
     }

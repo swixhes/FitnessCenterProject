@@ -12,16 +12,18 @@ namespace FitnessCenterProject
         public override string Password { get; set; }
         public Client Client { get; set; }
         private FitnessCenter FitnessCenter { get; }
-        public ClientAccount(string username, string password, Client client, FitnessCenter fitnessCenter)
+
+        // Делегат для повідомлень
+        private readonly Action<string, ConsoleColor> onMessage;
+
+        public ClientAccount(string username, string password, Client client, FitnessCenter fitnessCenter, Action<string, ConsoleColor> onMessage)
         {
             Username = username;
             Password = password;
             Client = client;
             FitnessCenter = fitnessCenter;
+            this.onMessage = onMessage;
         }
-
-        
-
         public override void Register()
         {
             if (ValidateInput(Username, Password))
@@ -29,20 +31,16 @@ namespace FitnessCenterProject
                 if (!FitnessCenter.Accounts.Any(a => string.Equals(a.Username, Username, StringComparison.OrdinalIgnoreCase)))
                 {
                     FitnessCenter.Accounts.Add(this);
-                    //Console.WriteLine($"Клієнт {Client.FirstName} успішно зареєстрований з логіном: {Username}");
+                    //onMessage?.Invoke($"Клієнт {Client.FirstName} успішно зареєстрований з логіном: {Username}", ConsoleColor.Green);
                 }
                 else
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Цей логін вже існує. Виберіть інший.");
-                    Console.ResetColor();
+                    onMessage?.Invoke("Цей логін вже існує. Виберіть інший.", ConsoleColor.Red);
                 }
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Невірний логін або пароль. Реєстрація не вдалася.");
-                Console.ResetColor();
+                onMessage?.Invoke("Невірний логін або пароль. Реєстрація не вдалася.", ConsoleColor.Red);
             }
         }
     }
